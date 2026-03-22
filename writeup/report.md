@@ -2,17 +2,17 @@
 
 ## 1. Introduction
 
-The Transformer architecture, introduced by Vaswani et al. [1], fundamentally changed how sequence-to-sequence models are built. Prior to the Transformer, recurrent neural networks (RNNs) and their variants (LSTMs, GRUs) dominated machine translation, but they suffered from sequential computation bottlenecks — since each hidden state depends on the previous one, the computation cannot be parallelized across time steps — and difficulty capturing long-range dependencies. The Transformer replaced recurrence entirely with an attention mechanism that allows every position in a sequence to directly attend to every other position, enabling massive parallelism and more effective modeling of long-range relationships.
+The Transformer architecture, introduced by Vaswani et al. [1], fundamentally changed how sequence-to-sequence models are built. Prior to the Transformer, recurrent neural networks (RNNs) and their variants (LSTMs, GRUs) dominated machine translation, but they suffered from sequential computation bottlenecks – since each hidden state depends on the previous one, the computation cannot be parallelized across time steps – and difficulty capturing long-range dependencies. The Transformer replaced recurrence entirely with an attention mechanism that allows every position in a sequence to directly attend to every other position, enabling massive parallelism and more effective modeling of long-range relationships.
 
-Attention mechanisms were first introduced for machine translation by Bahdanau et al. [2], who showed that allowing a decoder to selectively focus on different parts of the source sentence dramatically improved translation quality compared to fixed-length encoded representations. The key innovation of Vaswani et al. [1] was demonstrating that attention alone — without any recurrence or convolution — is sufficient to build a state-of-the-art sequence model.
+Attention mechanisms were first introduced for machine translation by Bahdanau et al. [2], who showed that allowing a decoder to selectively focus on different parts of the source sentence dramatically improved translation quality compared to fixed-length encoded representations. The key innovation of Vaswani et al. [1] was demonstrating that attention alone – without any recurrence or convolution – is sufficient to build a state-of-the-art sequence model.
 
-The goal of this project is threefold: (1) reconstruct the Transformer's core attention mechanism mathematically, (2) implement the full encoder-decoder architecture from scratch using only PyTorch primitives, and (3) train it on a real English–German translation dataset to analyze what the attention mechanism actually learns. This is not an attempt to achieve state-of-the-art translation quality — rather, it is an exercise in understanding the mechanism by building it, training it, and visualizing its internal representations. All code is available at https://github.com/finnstaeblein/attention-is-all-you-need and is runnable from start to finish.
+The goal of this project is threefold: (1) reconstruct the Transformer's core attention mechanism mathematically, (2) implement the full encoder-decoder architecture from scratch using only PyTorch primitives, and (3) train it on a real English–German translation dataset to analyze what the attention mechanism actually learns. This is not an attempt to achieve state-of-the-art translation quality – rather, it is an exercise in understanding the mechanism by building it, training it, and visualizing its internal representations. All code is available at https://github.com/finnstaeblein/attention-is-all-you-need and is runnable from start to finish.
 
-## 2. Theory — The Attention Mechanism
+## 2. Theory – The Attention Mechanism
 
 ### Scaled Dot-Product Attention
 
-The fundamental operation in the Transformer is scaled dot-product attention. Given three matrices — Queries ($Q$), Keys ($K$), and Values ($V$) — attention computes a weighted sum of values where the weights are determined by the compatibility between queries and keys:
+The fundamental operation in the Transformer is scaled dot-product attention. Given three matrices – Queries ($Q$), Keys ($K$), and Values ($V$) – attention computes a weighted sum of values where the weights are determined by the compatibility between queries and keys:
 
 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) \cdot V$$
 
@@ -44,9 +44,9 @@ Our implementation follows the original encoder-decoder structure from Vaswani e
 
 **Decoder.** Each decoder block has three sub-layers: (1) masked multi-head self-attention over the target sequence (masking prevents attending to future positions during training), (2) multi-head cross-attention where decoder queries attend to encoder outputs (this is where the translation "alignment" happens), and (3) a position-wise feed-forward network. All three sub-layers use residual connections and layer normalization.
 
-**Configuration.** Our model uses: $d_{\text{model}} = 128$, $n_{\text{heads}} = 4$, $n_{\text{layers}} = 2$, $d_{ff} = 512$, dropout $= 0.1$. This gives approximately **3,978,216 total parameters**. For comparison, the original Transformer base model used $d_{\text{model}} = 512$, 8 heads, 6 layers, and had 65M parameters [1]. Our model is intentionally small — the goal is to observe attention behavior, not to maximize translation quality.
+**Configuration.** Our model uses: $d_{\text{model}} = 128$, $n_{\text{heads}} = 4$, $n_{\text{layers}} = 2$, $d_{ff} = 512$, dropout $= 0.1$. This gives approximately **3,978,216 total parameters**. For comparison, the original Transformer base model used $d_{\text{model}} = 512$, 8 heads, 6 layers, and had 65M parameters [1]. Our model is intentionally small – the goal is to observe attention behavior, not to maximize translation quality.
 
-Crucially, no pre-built transformer modules (such as `nn.Transformer` or `nn.TransformerEncoder`) were used. Every component — scaled dot-product attention, multi-head attention, positional encoding, encoder blocks, decoder blocks, and the full model — was implemented from scratch using only `nn.Linear`, `nn.LayerNorm`, `nn.Embedding`, and standard tensor operations.
+Crucially, no pre-built transformer modules (such as `nn.Transformer` or `nn.TransformerEncoder`) were used. Every component – scaled dot-product attention, multi-head attention, positional encoding, encoder blocks, decoder blocks, and the full model – was implemented from scratch using only `nn.Linear`, `nn.LayerNorm`, `nn.Embedding`, and standard tensor operations.
 
 **Evaluation.** Translation quality was evaluated using corpus-level BLEU [3], which measures n-gram overlap between generated translations and reference translations. We also extracted and visualized cross-attention weights from the decoder's last layer to analyze learned alignment patterns.
 
@@ -62,7 +62,7 @@ We use the Tatoeba English–German parallel corpus [4], a community-contributed
 
 The resulting dataset was split 80/10/10 into 16,000 training, 2,000 validation, and 2,000 test pairs.
 
-**Tokenization** used a simple regex-based word-level tokenizer matching the pattern `[a-zäöüß]+|[.,?!'-]`, which splits on word boundaries and preserves common punctuation. This produced vocabulary sizes of **5,649 tokens for English** and **9,064 tokens for German**. German's larger vocabulary reflects its richer morphology — compound words, case inflections, and grammatical gender create more unique word forms.
+**Tokenization** used a simple regex-based word-level tokenizer matching the pattern `[a-zäöüß]+|[.,?!'-]`, which splits on word boundaries and preserves common punctuation. This produced vocabulary sizes of **5,649 tokens for English** and **9,064 tokens for German**. German's larger vocabulary reflects its richer morphology – compound words, case inflections, and grammatical gender create more unique word forms.
 
 Each token is mapped to a unique integer index. Four special tokens are reserved: `<pad>` (index 0) for batch padding, `<sos>` (index 1) to signal the start of a sequence, `<eos>` (index 2) to signal the end, and `<unk>` (index 3) for out-of-vocabulary tokens.
 
@@ -82,7 +82,7 @@ Training loss decreased from 6.03 (epoch 1) to 3.35 (epoch 10), and validation l
 
 ### Translation Quality
 
-With only 3.9M parameters trained on 16K sentence pairs for 10 epochs, translation quality is limited. The model learns basic German sentence structure — it correctly starts many translations with appropriate pronouns ("wir," "ich," "tom," "es") and produces grammatically plausible fragments — but it struggles with content words and often generates repetitive or generic phrases.
+With only 3.9M parameters trained on 16K sentence pairs for 10 epochs, translation quality is limited. The model learns basic German sentence structure – it correctly starts many translations with appropriate pronouns ("wir," "ich," "tom," "es") and produces grammatically plausible fragments – but it struggles with content words and often generates repetitive or generic phrases.
 
 Table 1 shows representative examples from the test set.
 
@@ -111,7 +111,7 @@ Figure 3 shows the attention pattern for a longer sentence.
 
 ![Figure 3: Cross-attention heatmap for a longer sentence about "fundamental difference." The token "es" attends strongly to "there," correctly mapping the English "there is" construction to German "es gibt/ist." Later tokens show more diffuse attention, reflecting the model's difficulty with content words in longer sequences.](figures/attention_heatmap_3.png)
 
-Here we see that the first token "es" attends strongly to "\<sos\>" and "there" — correctly identifying the English "there is" construction that maps to German "es gibt/ist." Later tokens show more diffuse attention across multiple source positions, which is expected for a model that hasn't fully learned content word mappings.
+Here we see that the first token "es" attends strongly to "\<sos\>" and "there" – correctly identifying the English "there is" construction that maps to German "es gibt/ist." Later tokens show more diffuse attention across multiple source positions, which is expected for a model that hasn't fully learned content word mappings.
 
 ### Attention Head Specialization
 
@@ -119,7 +119,7 @@ Perhaps the most interesting finding is that different attention heads learn dif
 
 ![Figure 4: Comparison of all four cross-attention heads for the same input sentence. Head 0 shows a roughly diagonal pattern indicating positional alignment. Head 1 displays broader, more diffuse attention. Head 2 concentrates on source-initial positions. Head 3 focuses on middle and end positions. This specialization confirms that multi-head attention learns diverse, complementary representations.](figures/attention_heads_comparison.png)
 
-Head 0 shows a roughly diagonal pattern, focusing on positional alignment. Head 1 shows broader, more diffuse attention. Head 2 concentrates heavily on the beginning of the source sequence. Head 3 shows a pattern focused on the middle and end positions. This differentiation demonstrates that multi-head attention is not redundant — each head captures different aspects of the source-target relationship, exactly as theorized in the original paper [1].
+Head 0 shows a roughly diagonal pattern, focusing on positional alignment. Head 1 shows broader, more diffuse attention. Head 2 concentrates heavily on the beginning of the source sequence. Head 3 shows a pattern focused on the middle and end positions. This differentiation demonstrates that multi-head attention is not redundant – each head captures different aspects of the source-target relationship, exactly as theorized in the original paper [1].
 
 ### Summary of Learned Behaviors
 
@@ -142,7 +142,7 @@ Head 0 shows a roughly diagonal pattern, focusing on positional alignment. Head 
 
 This experiment has several deliberate limitations. The model is extremely small (3.9M parameters vs. 65M+ for production systems). The dataset is tiny (16K training pairs vs. millions used in real NMT). Word-level tokenization with a simple regex creates an artificially large vocabulary without the subword compositionality that BPE or SentencePiece [6] provide. And training for only 10 epochs on CPU leaves substantial room for improvement.
 
-The low BLEU score (0.021) reflects these constraints. BLEU itself has known limitations as a metric — it relies on exact n-gram matches and penalizes valid paraphrases [3] — but even accounting for this, the model clearly has not learned to produce fluent translations. However, the primary goal was not translation quality but rather understanding the attention mechanism, and in that regard the experiment succeeded: the attention heatmaps (Figures 2–4) demonstrate that meaningful alignment emerges from the training signal alone.
+The low BLEU score (0.021) reflects these constraints. BLEU itself has known limitations as a metric – it relies on exact n-gram matches and penalizes valid paraphrases [3] – but even accounting for this, the model clearly has not learned to produce fluent translations. However, the primary goal was not translation quality but rather understanding the attention mechanism, and in that regard the experiment succeeded: the attention heatmaps (Figures 2–4) demonstrate that meaningful alignment emerges from the training signal alone.
 
 A key methodological limitation is the absence of a learning rate warmup schedule. Vaswani et al. [1] used a linear warmup for 4,000 steps followed by inverse square root decay, which stabilizes early training. Our constant learning rate likely resulted in suboptimal early updates.
 
@@ -157,7 +157,7 @@ Several concrete changes would improve this project's translation results:
 3. **More training data** from the full 331K-pair Tatoeba corpus would expose the model to far more vocabulary and syntactic patterns.
 4. **Learning rate warmup** and **label smoothing** ($\epsilon = 0.1$), as described in the original paper [1], would stabilize training and improve generalization.
 
-Even a minimal Transformer with under 4 million parameters, trained on 16,000 sentence pairs for under 7 minutes, learns meaningful attention patterns that reflect real linguistic structure. The cross-attention heatmaps show that the model discovers source-target alignment without any explicit alignment supervision — this emergent alignment is one of the most powerful properties of the attention mechanism. The head specialization we observed (Figure 4) confirms that multi-head attention provides genuine representational diversity, not mere redundancy.
+Even a minimal Transformer with under 4 million parameters, trained on 16,000 sentence pairs for under 7 minutes, learns meaningful attention patterns that reflect real linguistic structure. The cross-attention heatmaps show that the model discovers source-target alignment without any explicit alignment supervision – this emergent alignment is one of the most powerful properties of the attention mechanism. The head specialization we observed (Figure 4) confirms that multi-head attention provides genuine representational diversity, not mere redundancy.
 
 ## 8. References
 
