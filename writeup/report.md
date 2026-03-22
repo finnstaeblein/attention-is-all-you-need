@@ -148,8 +148,6 @@ This experiment has several deliberate limitations. The model is extremely small
 
 The model clearly has not learned to produce fluent translations. However, the primary goal was not translation quality but rather understanding the attention mechanism, and in that regard the experiment succeeded: the attention heatmaps (Figures 2–4) demonstrate that meaningful alignment emerges from the training signal alone.
 
-A key methodological limitation is the absence of a learning rate warmup schedule. Vaswani et al. [1] used a linear warmup for 4,000 steps followed by inverse square root decay, which stabilizes early training. My constant learning rate likely resulted in suboptimal early updates.
-
 ### Broader Implications and Next Steps
 
 The Transformer architecture has rapidly become foundational not only in NLP but across scientific domains. In computational biology, Transformer-based models have been applied to protein structure prediction (AlphaFold2 [7]), genomic sequence modeling, and drug discovery. The attention mechanism's ability to capture long-range dependencies without sequential processing makes it particularly well-suited for biological sequences, where distant residues or nucleotides can have strong functional relationships.
