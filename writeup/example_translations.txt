@@ -1,0 +1,80 @@
+EN:  we know your father .
+REF: wir kennen euren vater .
+GEN: wir wissen uns auf uns .
+---
+EN:  i am not sure .
+REF: ich bin nicht sicher .
+GEN: ich habe nicht mehr .
+---
+EN:  you need a hobby of some sort .
+REF: du brauchst irgendein hobby .
+GEN: du bist ein paar tage .
+---
+EN:  it was a dark night .
+REF: es war finstere nacht .
+GEN: es war ein paar minuten .
+---
+EN:  there is a fundamental difference between your opinion and mine .
+REF: es gibt einen grundsätzlichen unterschied zwischen deiner meinung und meiner .
+GEN: es ist ein paar tage und eine gute .
+---
+EN:  tom ' s apartment is spacious .
+REF: tom hat eine geräumige wohnung .
+GEN: tom ist sehr gut .
+---
+EN:  my car won ' t start .
+REF: mein auto springt nicht an .
+GEN: meine mutter ist nicht mehr .
+---
+EN:  tom glanced down .
+REF: tom schaute nach unten .
+GEN: tom hat sich den ganzen .
+---
+EN:  how did tom manage to lose so much weight so quickly ?
+REF: wie hat es tom zuwege gebracht , in so kurzer zeit so viel abzunehmen ?
+GEN: wie viele leute tom so gut , wie viele ?
+---
+EN:  have you finished your coffee ?
+REF: hast du deinen kaffee ausgetrunken ?
+GEN: hast du schon einmal schon einmal ?
+---
+EN:  they are putting on their gloves .
+REF: sie ziehen sich die handschuhe an .
+GEN: sie sind drei stunden .
+---
+EN:  there must be a way .
+REF: es muß eine möglichkeit geben .
+GEN: es ist ein paar minuten .
+---
+EN:  can you turn on the tv ?
+REF: kannst du den fernseher einschalten ?
+GEN: kannst du den ganzen tag ?
+---
+EN:  what ' s your opinion ?
+REF: was meinen sie ?
+GEN: was ist dein ?
+---
+EN:  that ' s really very interesting .
+REF: das ist ja wirklich sehr interessant .
+GEN: das ist sehr gut .
+---
+EN:  tom hasn ' t gone anywhere . he ' s still in his room .
+REF: tom ist nirgendwo hingegangen . er ist noch in seinem zimmer .
+GEN: tom hat sich nicht in der einzige in der einzige .
+---
+EN:  mother bought me a nice dress last sunday .
+REF: letzten sonntag hat mir meine mutter ein hübsches kleid gekauft .
+GEN: gib mir ein paar tage .
+---
+EN:  take your coat .
+REF: nimm deinen mantel !
+GEN: deine mutter sie !
+---
+EN:  tom unfolded the newspaper and started to read it .
+REF: tom faltete die zeitung auseinander und las sie .
+GEN: tom und maria waren es und maria zu hause .
+---
+EN:  japanese is harder than english .
+REF: japanisch ist schwieriger als englisch .
+GEN: der hund ist als ist als .
+---
