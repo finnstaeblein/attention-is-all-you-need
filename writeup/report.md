@@ -24,7 +24,11 @@ Rather than performing a single attention computation, the Transformer uses mult
 
 $$\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h) \cdot W^O$$
 
-where $\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)$, $W_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}$, $W_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}$, and $W_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}$ are learned projection matrices for head $i$, $W^O \in \mathbb{R}^{hd_v \times d_{\text{model}}}$ is the output projection, $h$ is the number of heads, and $d_{\text{model}}$ is the model embedding dimension.
+where:
+
+$$\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)$$
+
+Here $W_i^Q, W_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}$ and $W_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}$ are learned projection matrices for head $i$, $W^O \in \mathbb{R}^{hd_v \times d_{\text{model}}}$ is the output projection, $h$ is the number of heads, and $d_{\text{model}}$ is the model embedding dimension.
 
 This allows different heads to learn different types of relationships. As we will see in our analysis, some heads learn positional alignment while others capture semantic or syntactic patterns.
 
