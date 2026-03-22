@@ -146,7 +146,7 @@ Head 0 shows a roughly diagonal pattern, focusing on positional alignment. Head 
 
 This experiment has several deliberate limitations. The model is extremely small (3.9M parameters vs. 65M+ for production systems). The dataset is tiny (16K training pairs vs. millions used in real NMT). Word-level tokenization with a simple regex creates an artificially large vocabulary without the subword compositionality that BPE or SentencePiece [6] provide. And training for only 10 epochs on CPU leaves substantial room for improvement.
 
-The low BLEU score (0.021) reflects these constraints. BLEU itself has known limitations as a metric – it relies on exact n-gram matches and penalizes valid paraphrases [3] – but even accounting for this, the model clearly has not learned to produce fluent translations. However, the primary goal was not translation quality but rather understanding the attention mechanism, and in that regard the experiment succeeded: the attention heatmaps (Figures 2–4) demonstrate that meaningful alignment emerges from the training signal alone.
+The model clearly has not learned to produce fluent translations. However, the primary goal was not translation quality but rather understanding the attention mechanism, and in that regard the experiment succeeded: the attention heatmaps (Figures 2–4) demonstrate that meaningful alignment emerges from the training signal alone.
 
 A key methodological limitation is the absence of a learning rate warmup schedule. Vaswani et al. [1] used a linear warmup for 4,000 steps followed by inverse square root decay, which stabilizes early training. My constant learning rate likely resulted in suboptimal early updates.
 
