@@ -30,7 +30,7 @@ $$\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)$$
 
 Here $W_i^Q, W_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}$ and $W_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}$ are learned projection matrices for head $i$, $W^O \in \mathbb{R}^{hd_v \times d_{\text{model}}}$ is the output projection, $h$ is the number of heads, and $d_{\text{model}}$ is the model embedding dimension.
 
-This allows different heads to learn different types of relationships. As we will see in our analysis, some heads learn positional alignment while others capture semantic or syntactic patterns.
+This allows different heads to learn different types of relationships. As I will show in my analysis, some heads learn positional alignment while others capture semantic or syntactic patterns.
 
 ### Positional Encoding
 
@@ -42,21 +42,21 @@ where $pos$ is the position index in the sequence, $i$ is the dimension index, a
 
 ## 3. Architecture and Methods
 
-Our implementation follows the original encoder-decoder structure from Vaswani et al. [1], scaled down for a toy experiment.
+My implementation follows the original encoder-decoder structure from Vaswani et al. [1], scaled down for a toy experiment.
 
 **Encoder.** Each encoder block consists of two sub-layers: (1) multi-head self-attention, where every source token attends to every other source token, and (2) a position-wise feed-forward network (two linear transformations with ReLU activation: $d_{\text{model}} \to d_{ff} \to d_{\text{model}}$, where $d_{ff}$ is the inner feed-forward dimension). Each sub-layer is wrapped with a residual connection and layer normalization: $\text{LayerNorm}(x + \text{Sublayer}(x))$.
 
 **Decoder.** Each decoder block has three sub-layers: (1) masked multi-head self-attention over the target sequence (masking prevents attending to future positions during training), (2) multi-head cross-attention where decoder queries attend to encoder outputs (this is where the translation "alignment" happens), and (3) a position-wise feed-forward network. All three sub-layers use residual connections and layer normalization.
 
-**Configuration.** Our model uses: $d_{\text{model}} = 128$, $n_{\text{heads}} = 4$, $n_{\text{layers}} = 2$, $d_{ff} = 512$, dropout $= 0.1$. This gives approximately **3,978,216 total parameters**. For comparison, the original Transformer base model used $d_{\text{model}} = 512$, 8 heads, 6 layers, and had 65M parameters [1]. Our model is intentionally small – the goal is to observe attention behavior, not to maximize translation quality.
+**Configuration.** The model uses: $d_{\text{model}} = 128$, $n_{\text{heads}} = 4$, $n_{\text{layers}} = 2$, $d_{ff} = 512$, dropout $= 0.1$. This gives approximately **3,978,216 total parameters**. For comparison, the original Transformer base model used $d_{\text{model}} = 512$, 8 heads, 6 layers, and had 65M parameters [1]. The model is intentionally small – the goal is to observe attention behavior, not to maximize translation quality.
 
 Crucially, no pre-built transformer modules (such as `nn.Transformer` or `nn.TransformerEncoder`) were used. Every component – scaled dot-product attention, multi-head attention, positional encoding, encoder blocks, decoder blocks, and the full model – was implemented from scratch using only `nn.Linear`, `nn.LayerNorm`, `nn.Embedding`, and standard tensor operations.
 
-**Evaluation.** Translation quality was evaluated using corpus-level BLEU [3], which measures n-gram overlap between generated translations and reference translations. We also extracted and visualized cross-attention weights from the decoder's last layer to analyze learned alignment patterns.
+**Evaluation.** Translation quality was evaluated using corpus-level BLEU [3], which measures n-gram overlap between generated translations and reference translations. I also extracted and visualized cross-attention weights from the decoder's last layer to analyze learned alignment patterns.
 
 ## 4. Data
 
-We use the Tatoeba English–German parallel corpus [4], a community-contributed dataset of sentence pairs. The raw dataset contains 331,266 pairs. We applied the following preprocessing pipeline:
+I use the Tatoeba English–German parallel corpus [4], a community-contributed dataset of sentence pairs. The raw dataset contains 331,266 pairs. I applied the following preprocessing pipeline:
 
 1. **Text cleaning**: Unicode NFC normalization, lowercasing, removal of control characters and formatting artifacts
 2. **Length filtering**: English sentences 2–12 words, German sentences 2–15 words, with a maximum length ratio of 2.5
@@ -72,7 +72,7 @@ Each token is mapped to a unique integer index. Four special tokens are reserved
 
 ## 5. Training
 
-The model was trained for 10 epochs using the Adam optimizer [5] with a constant learning rate of $\text{lr} = 10^{-4}$. The loss function was cross-entropy with `ignore_index=0` to exclude padding tokens from the loss computation. We used teacher forcing during training: the decoder receives the ground-truth target tokens (shifted right by one position) as input, and the loss is computed against the next token at each position.
+The model was trained for 10 epochs using the Adam optimizer [5] with a constant learning rate of $\text{lr} = 10^{-4}$. The loss function was cross-entropy with `ignore_index=0` to exclude padding tokens from the loss computation. I used teacher forcing during training: the decoder receives the ground-truth target tokens (shifted right by one position) as input, and the loss is computed against the next token at each position.
 
 Batch size was 32, giving 500 training batches per epoch. Training was performed on CPU and completed in approximately 6.5 minutes total (~40 seconds per epoch).
 
@@ -103,7 +103,7 @@ The model captures the right sentence openings ("wir," "was ist," "das ist," "ka
 
 ### Attention Analysis
 
-The most valuable output from this project is not the translation quality but the attention patterns the model learned. We extracted cross-attention weights from the decoder's last layer, which reveal how each generated German token attends to the English source tokens.
+The most valuable output from this project is not the translation quality but the attention patterns the model learned. I extracted cross-attention weights from the decoder's last layer, which reveal how each generated German token attends to the English source tokens.
 
 Figure 2 shows the cross-attention heatmap for the sentence "we know your father."
 
@@ -115,7 +115,7 @@ Figure 3 shows the attention pattern for a longer sentence.
 
 ![Figure 3: Cross-attention heatmap for a longer sentence about "fundamental difference." The token "es" attends strongly to "there," correctly mapping the English "there is" construction to German "es gibt/ist." Later tokens show more diffuse attention, reflecting the model's difficulty with content words in longer sequences.](figures/attention_heatmap_3.png)
 
-Here we see that the first token "es" attends strongly to "\<sos\>" and "there" – correctly identifying the English "there is" construction that maps to German "es gibt/ist." Later tokens show more diffuse attention across multiple source positions, which is expected for a model that hasn't fully learned content word mappings.
+Here the first token "es" attends strongly to "\<sos\>" and "there" – correctly identifying the English "there is" construction that maps to German "es gibt/ist." Later tokens show more diffuse attention across multiple source positions, which is expected for a model that hasn't fully learned content word mappings.
 
 ### Attention Head Specialization
 
@@ -148,7 +148,7 @@ This experiment has several deliberate limitations. The model is extremely small
 
 The low BLEU score (0.021) reflects these constraints. BLEU itself has known limitations as a metric – it relies on exact n-gram matches and penalizes valid paraphrases [3] – but even accounting for this, the model clearly has not learned to produce fluent translations. However, the primary goal was not translation quality but rather understanding the attention mechanism, and in that regard the experiment succeeded: the attention heatmaps (Figures 2–4) demonstrate that meaningful alignment emerges from the training signal alone.
 
-A key methodological limitation is the absence of a learning rate warmup schedule. Vaswani et al. [1] used a linear warmup for 4,000 steps followed by inverse square root decay, which stabilizes early training. Our constant learning rate likely resulted in suboptimal early updates.
+A key methodological limitation is the absence of a learning rate warmup schedule. Vaswani et al. [1] used a linear warmup for 4,000 steps followed by inverse square root decay, which stabilizes early training. My constant learning rate likely resulted in suboptimal early updates.
 
 ### Broader Implications and Next Steps
 
@@ -161,7 +161,7 @@ Several concrete changes would improve this project's translation results:
 3. **More training data** from the full 331K-pair Tatoeba corpus would expose the model to far more vocabulary and syntactic patterns.
 4. **Learning rate warmup** and **label smoothing** ($\epsilon = 0.1$), as described in the original paper [1], would stabilize training and improve generalization.
 
-Even a minimal Transformer with under 4 million parameters, trained on 16,000 sentence pairs for under 7 minutes, learns meaningful attention patterns that reflect real linguistic structure. The cross-attention heatmaps show that the model discovers source-target alignment without any explicit alignment supervision – this emergent alignment is one of the most powerful properties of the attention mechanism. The head specialization we observed (Figure 4) confirms that multi-head attention provides genuine representational diversity, not mere redundancy.
+Even a minimal Transformer with under 4 million parameters, trained on 16,000 sentence pairs for under 7 minutes, learns meaningful attention patterns that reflect real linguistic structure. The cross-attention heatmaps show that the model discovers source-target alignment without any explicit alignment supervision – this emergent alignment is one of the most powerful properties of the attention mechanism. The head specialization I observed (Figure 4) confirms that multi-head attention provides genuine representational diversity, not mere redundancy.
 
 ## 8. References
 
